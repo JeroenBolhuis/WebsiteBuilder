@@ -1,0 +1,36 @@
+button>i {
+    pointer-events: none;
+}
+
+.ql-editor:not([contenteditable="true"]) {
+    padding: 0;
+}
+
+/* Accordions */
+.accordion-button:not(.open):not(:last-of-type) {
+    border-bottom: 0;
+}
+
+.accordion-button .fa-arrow-up {
+    transition: 0.3s;
+}
+
+.accordion-button+.accordion-body {
+    position: absolute;
+    opacity: 0;
+    z-index: -100;
+}
+
+.accordion-button.open .fa-arrow-up {
+    transform: rotate(180deg);
+}
+
+.accordion-button.open+.accordion-body {
+    position: static;
+    opacity: 1;
+    transition: 0.3s;
+}
+
+.ql-snow .ql-tooltip {
+    z-index: 10;
+}

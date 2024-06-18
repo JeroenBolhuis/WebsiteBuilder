@@ -1,0 +1,81 @@
+.sponsor-slider {
+    position: relative;
+    overflow: hidden;
+}
+
+:root {
+    --sponsor-slider-gap: 0.5rem;
+    --sponsor-slider-amount: 2;
+}
+
+@media (min-width: 768px) {
+    :root {
+        --sponsor-slider-amount: 4;
+    }
+}
+
+.sponsor-slider .slide-container {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    gap: var(--sponsor-slider-gap);
+}
+
+.sponsor-slider .slide {
+    flex: 0 0 calc((100% / var(--sponsor-slider-amount)) - var(--sponsor-slider-gap));
+    padding: 1rem;
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: #f5f5f5;
+    border-radius: 10px;
+}
+
+.sponsor-slider .slide.post-sponsor {
+    flex: 0 0 calc((100% / 2) - var(--sponsor-slider-gap));
+}
+
+.sponsor-slider .controls button {
+    position: absolute;
+    z-index: 1;
+
+    background-color: rgba(255, 255, 255, 0.5);
+    border: none;
+    border-radius: 10px;
+    font-size: 2rem;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.1s ease-in-out;
+}
+
+.sponsor-slider .controls button.prev-btn {
+    left: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.sponsor-slider .controls button.next-btn {
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.sponsor-slider .controls button.play-pause-btn {
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 0.5rem;
+    padding: 0 0.5rem;
+}
+
+.sponsor-slider .controls button:hover {
+    background-color: rgba(211, 211, 211, 0.8);
+}
+
+.no-transition {
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -o-transition: none !important;
+    transition: none !important;
+}
