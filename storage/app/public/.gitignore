@@ -1,0 +1,8 @@
+*
+!.gitignore
+!favicons/
+favicons/*
+!favicons/default.ico
+!media/
+media/*
+!media/no-image.svg
