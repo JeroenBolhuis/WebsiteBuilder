@@ -1,104 +1,81 @@
 # Website Builder
-## Setup
 
-Volg deze stappen om het Laravel-project op te zetten:
+Website Builder is a Laravel application built for student association Het Koppel between February and April 2025. It provides a public website and an administration area for assembling pages from reusable templates and managing association content. It was a project for the association; the current repository history is an import and does not by itself establish individual authorship of every feature.
 
-1. Clone de repository met `git clone <repository-url>`.
-2. Navigeer naar de projectmap met `cd <project-map>`.
-3. Voer `composer install` uit om de afhankelijkheden te installeren.
-4. Voer `npm install` uit om de npm-pakketten te installeren.
-5. Maak een kopie van het `.env.example` bestand en hernoem het naar `.env`.
-6. Genereer een applicatiesleutel met `php artisan key:generate`.
-7. Voer de database migraties uit met `php artisan migrate`.
-8. Voer het volgende command uit `php artisan storage:link` om alle afbeeldingen te laten werken.
-9. Maak een virtuele host aan of voer `php artisan serve` uit om de applicatie lokaal te draaien.
-10. Geniet van je Laravel-project!
+## Features
 
-Zorg ervoor dat je de juiste configuratie instelt in het `.env` bestand, zoals de databaseverbinding en andere relevante instellingen.
+- Assemble and preview pages from reusable templates, reorder components and select a homepage.
+- Manage events, posts, sponsors, albums and media; public visitors can view content and submit posts.
+- Configure navigation, footer, social links, colors and branding.
+- Manage users and permissions, review a logbook, and restore or permanently delete items from the trash.
 
-Voor de Dusk tests moet de Dusk env nog opgezet worden:
+The admin routes are protected by authentication and permissions. See [routes/web.php](routes/web.php) for the available actions.
 
-1. Maak een kopie van het `.env.example.dusk.local` bestand en hernoem het naar `.env.dusk.local`.
-2. Stel in de ENV de juiste `DB_DATABASE`, `APP_URL` en `APP_KEY` (uit de .env) in.
-3. Maak de SQL database aan.
-4. Voer het command `php artisan dusk:chrome-driver` uit.
-5. Run `php artisan dusk` voor alle tests of `php artisan dusk --filter naam_test`.
+## Stack
 
-## Coding Guidelines
-1. https://spatie.be/guidelines/laravel-php
+PHP 8.1+, Laravel 10, Blade, Livewire 3, Tailwind CSS, Vite and MySQL. The Composer and npm manifests list the dependencies; Livewire supplies Alpine.js for interactive components.
 
-## Git workflow
-### Branches 
+## Local setup
 
-De branches die gebruikt worden zijn: 
+Install PHP with Composer's required extensions, Composer, Node.js, npm and MySQL. From the repository root:
 
-`master` - De master branch is de branch waar de code in staat die op dat moment in productie is. 
+```sh
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+```
 
-`development` - De development branch is de branch waar de code in staat die op dat moment in ontwikkeling is. 
+Create a local database and configure its connection in `.env`. Then run:
 
-`feature/` - De feature branches zijn branches die gebruikt worden om een feature te ontwikkelen. Deze branches worden vanaf de development branch gemaakt en worden na het afronden van de feature gemerged met de development branch. 
+```sh
+php artisan migrate
+php artisan db:seed
+php artisan storage:link
+npm run dev
+```
 
- 
-De namen van de branches geven wij volgens de semantisch standaard. 
+The seeders initialize templates, settings, permissions and the footer; see [DatabaseSeeder.php](database/seeders/DatabaseSeeder.php). In another terminal run `php artisan serve`, or configure a virtual host. `npm run build` builds frontend assets. Keep `.env` private and use your own local credentials.
 
-`feature/<omschrijving>` - Nieuwe functie in het programma. 
+Create an administrator after seeding permissions:
 
-`fix/<omschrijving>` - Bugfix in het programma. 
+```sh
+php artisan app:create-admin-user <username> <email>
+```
 
-`refactor/<omschrijving>` - Aanpassing van huidige code in het programma. 
+The command prompts for a password. Use a unique local password.
 
-`wip/<omschrijving>` - Work in progress, toevoeging waar je langer mee bezig gaat zijn of experimenteren met code. 
+## Tests
 
-`build/<omschrijving>` - Aanpassing aan de configuratie en werking van de applicatie. 
+PHPUnit example unit and feature tests and Laravel Dusk browser tests are present. The browser tests cover areas including media, navigation, users, posts, events and trash.
 
- 
-### Commits 
-Commits worden gemaakt met de volgende structuur: Semantische Git Commits. 
+```sh
+php artisan test
+```
 
-### Pull requests 
-Pull requests worden gemaakt vanaf een branch naar de development branch. Deze worden vervolgens door minimaal 1 andere developer gereviewd en gemerged.  
+For Dusk, copy `.env.example.dusk.local` to `.env.dusk.local`, configure an isolated test database, `APP_URL` and the application key, and create that database. Install a compatible ChromeDriver, then run:
 
-### Issues 
-Issues worden gebruikt om bugs en features te tracken. In de issue wordt een beschrijving gegeven van de bug of feature. Vervolgens wordt er een passende label aan de issue toegevoegd. 
+```sh
+php artisan dusk:chrome-driver
+php artisan dusk
+# Or select a test:
+php artisan dusk --filter TestName
+```
 
-### Custom Commands  
-#### Nieuwe admin gebruiker 
-Om een nieuwe beheerder aan te maken kan er gebruik gemaakt worden van het volgende command:  
-`php artisan app:create-admin-user <username> <email>`
+Dusk can modify its configured database; do not use a database containing data you need. Test results are not implied by these instructions.
 
-### Hoe maak je een nieuwe template voor dummies
-#### Laat de template genereren
-Om een nieuwe template aan te maken kan het volgende commando uitvoeren:
-- `<template_naam>` MOET hetzelfde zijn + PascalCase bijv: TekstLinksTekstRechts
-- `<eigen_input_naam1>` Deze namen mag je zelf kiezen
+## Creating a page template
 
-`php artisan make:template <template_naam> <eigen_input_naam1> <eigen_input_naam2>`
+The custom generator creates admin and page components and inserts a template record into the current database. Use a PascalCase name and choose input names:
 
-Om later extra input velden toe te voegen kan je de volgende array aanpassen
-- `public $input_names = ['<eigen_input_naam>','<eigen_input_naam>'];`
+```sh
+php artisan make:template TextLeftTextRight first_input second_input
+```
 
-Deze code staat in het volgende bestand `App/View/Components/Templates/<template_naam>/Admin`.
+Choose a name that does not already exist. The admin component in `app/View/Components/Templates/<Name>/Admin.php` exposes `public $input_names`; edit that array to add inputs. Define the admin fields and public output in the corresponding views under `resources/views/components/templates/`. Template data is available in the page view as `{{ $template->pivot->data->first_input }}`. Add the template to [TemplateSeeder.php](database/seeders/TemplateSeeder.php) if it should also be available in newly seeded databases.
 
-#### Wil je alles zelf doen?
-Om een nieuwe template aan te maken heb je 2 commando's:
-- `<template_naam>` MOET hetzelfde zijn + PascalCase bijv: TekstLinksTekstRechts
-1. `php artisan make:component Templates/<template_naam>/Admin`
-2. `php artisan make:component Templates/<template_naam>/Page`
+Alternatively, create both components manually with `php artisan make:component Templates/<Name>/Admin` and `php artisan make:component Templates/<Name>/Page`, define the input names in the admin class, create the views, and add the template to the database and seeder.
 
-Voeg de `<template_naam>` toe in de template tabel onder de kolom `name` en in de `Database/Seeders/TemplateSeeder`.
+## Original team conventions
 
-Navigeer nu naar `App/View/Components/Templates/<template_naam>/Admin`.
-
-Vervolgens vul je dit in bovenin de class:
-- `public $input_names = ['<eigen_input_naam>','<eigen_input_naam>'];`
-
-Navigeer nu naar `Resources/views/components/templates/<template_naam>/admin`.
-Hier kun je de input velden aanmaken om in te vullen in de admin pagina.
-
-Navigeer nu naar `Resources/views/components/templates/<template_naam>/page`.
-Dit is wat je op de echte website gaat zien.
-
-`{{ $template->pivot->data->eigen_input_naam }}`
-Zo haal je de gewenste data op.
-
-
+The original project documentation described `master` for production, `development` for ongoing work, and branches such as `feature/`, `fix/`, `refactor/`, `wip/` and `build/`. It called for semantic commits, pull requests reviewed by another developer, and issues for bugs and features. These are historical conventions, not a claim about the current branch structure. The team also referenced the [Spatie Laravel and PHP guidelines](https://spatie.be/guidelines/laravel-php).
